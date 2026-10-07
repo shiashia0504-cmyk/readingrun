@@ -33,29 +33,30 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--seal);outline-offset:3px}
 .hidden{display:none!important}
 
-.app{height:100%;display:flex;flex-direction:column;max-width:1100px;margin:0 auto;padding:0 clamp(14px,3vw,36px)}
+.app{height:100%;display:flex;flex-direction:column;max-width:1200px;margin:0 auto;padding:0 clamp(14px,3vw,36px)}
 
 /* 위: 시간 */
-.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:clamp(10px,2vh,20px) 0;border-bottom:3px double var(--line)}
-.top h1{margin:0;font-size:clamp(18px,2.6vh,24px);font-weight:600;letter-spacing:.06em}
-.timer{font-size:clamp(48px,9vh,88px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:.01em}
+.top{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:clamp(8px,1.6vh,18px) 0;border-bottom:3px double var(--line)}
+.top h1{margin:0;font-size:clamp(16px,2.4vh,22px);font-weight:600;letter-spacing:.06em;line-height:1.4}
+.timer{font-size:clamp(44px,8.5vh,84px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
 .timer small{font-size:.38em;font-weight:600;margin-left:6px}
 
-/* 가운데: 본문 8줄 */
-.text{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(4px,1vh,10px);padding:clamp(10px,2vh,20px) 0}
-.ln{position:relative;display:flex;align-items:center;gap:clamp(10px,2vw,20px);font-size:clamp(22px,min(5.4vh,4.2vw),46px);font-weight:600;line-height:1.35;padding:.12em .4em;border-radius:3px;color:var(--ink-soft);transition:color .25s, background-color .25s}
-.ln .no{flex:none;width:1.4em;font-size:.55em;font-weight:400;color:var(--ink-soft);font-variant-numeric:tabular-nums}
-.ln .tx{flex:1;min-width:0;word-break:keep-all}
+/* 가운데: 본문 8줄 (글자 크기는 화면에 맞게 자동 조절) */
+.text{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:.18em;padding:.4em 0;font-size:30px}
+.ln{flex:none;display:flex;align-items:center;gap:.4em;font-weight:600;line-height:1.3;padding:.08em .35em;border-radius:3px;color:var(--ink-soft);transition:color .25s,background-color .25s}
+.ln .no{flex:none;width:1.2em;font-size:.55em;font-weight:400;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.ln .tx{flex:1;min-width:0;white-space:nowrap}
+.ln .mk{flex:none;width:1.25em;height:1.25em;display:grid;place-items:center}
 .ln.now{color:var(--ink);background:color-mix(in srgb,var(--seal) 10%,transparent);box-shadow:inset 5px 0 0 var(--seal)}
 .ln.done{color:var(--indigo)}
-.ln.skip{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:2px}
-.stamp{flex:none;width:2.1em;height:2.1em;border:3px solid var(--seal);border-radius:50%;color:var(--seal);font-size:.42em;font-weight:900;display:grid;place-items:center;transform:rotate(-10deg);animation:stamp .32s cubic-bezier(.2,1.6,.4,1) both}
+.ln.skip .tx{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:2px}
+.stamp{width:100%;height:100%;border:3px solid var(--seal);border-radius:50%;color:var(--seal);font-size:.36em;font-weight:900;display:grid;place-items:center;transform:rotate(-10deg);animation:stamp .32s cubic-bezier(.2,1.6,.4,1) both}
 .ln.skip .stamp{border-style:dashed;color:var(--ink-soft);border-color:var(--ink-soft)}
 @keyframes stamp{from{transform:scale(2.4) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(-10deg);opacity:1}}
 @media (prefers-reduced-motion: reduce){.stamp{animation:none}}
 
 /* 아래: 상태와 버튼 */
-.bottom{display:flex;align-items:center;gap:14px;padding:clamp(10px,2vh,18px) 0;border-top:3px double var(--line)}
+.bottom{flex:none;display:flex;align-items:center;gap:14px;padding:clamp(8px,1.6vh,16px) 0;border-top:3px double var(--line)}
 .mic{width:18px;height:18px;border-radius:50%;background:var(--ink-soft);flex:none}
 .mic.on{background:var(--seal);animation:pulse 1.2s infinite}
 @keyframes pulse{50%{opacity:.3}}
@@ -66,11 +67,8 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .meter i{position:absolute;inset:0 auto 0 0;background:var(--indigo);width:0;transition:width .15s}
 .meter b{position:absolute;top:-5px;bottom:-5px;width:3px;background:var(--seal)}
 .btn{font-size:17px;padding:10px 16px;border:2px solid var(--line);background:var(--paper-2);border-radius:4px;flex:none}
-.go{font-size:clamp(24px,4vh,32px);font-weight:900;padding:14px 40px;border:none;background:var(--seal);color:#FFF8EE;border-radius:4px;letter-spacing:.12em}
+.go{font-size:clamp(24px,4vh,32px);font-weight:900;padding:12px 40px;border:none;background:var(--seal);color:#FFF8EE;border-radius:4px;letter-spacing:.12em}
 .go:disabled{opacity:.4;cursor:not-allowed}
-.level{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--ink-soft);flex:none}
-.level button{font-size:16px;padding:8px 12px;border:2px solid var(--line);background:var(--paper-2);border-radius:4px}
-.level button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
 .warn{flex:1;font-size:16px;line-height:1.5;color:var(--seal)}
 .spacer{flex:1}
 
@@ -82,10 +80,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 .end .t small{font-size:.32em;margin-left:8px}
 .end p{margin:0;font-size:20px;color:var(--ink-soft)}
 
-@media (max-width:640px){
-  .meter{width:70px}
-  .level span{display:none}
-}
+@media (max-width:640px){ .meter{width:70px} }
 </style>
 </head>
 <body>
@@ -99,8 +94,8 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 
   <!-- 시작 전 -->
   <footer class="bottom" id="ready">
-    <div class="spacer"></div>
     <div class="warn hidden" id="noSupport">음성 인식이 안 되는 브라우저예요. 안드로이드는 크롬, 아이패드는 사파리로 열어 주세요.</div>
+    <div class="spacer"></div>
     <button class="go" id="startBtn">시작</button>
   </footer>
 
@@ -149,7 +144,7 @@ const LINES = [
    v:["날로 씀에 편안케 하고자 할 따름이니라","날로 쓰메 편한키 하고져 할 따라미니라","날로 쑤메 편한 키 하고져 할 따름이니라"]}
 ];
 
-/* 발음 기준: 너그럽게(55%) 고정 */
+/* 발음 기준: 너그럽게(55%) */
 const level=0.55;
 
 /* 한글 → 자모 (비교용) */
@@ -188,23 +183,47 @@ function bestMatch(p,t){
   return {score:1-best/m,end};
 }
 const TARGETS=LINES.map(l=>[l.g,...l.v].map(jamo));
+function lineMatch(i,rest){
+  let best={score:0,end:0};
+  for(const p of TARGETS[i]){const m=bestMatch(p,rest); if(m.score>best.score) best=m}
+  return best;
+}
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 function drawText(){
   $("text").innerHTML=LINES.map((l,i)=>
-    `<div class="ln" id="l${i}"><span class="no">${i+1}</span><span class="tx">${l.g}</span></div>`).join("");
+    `<div class="ln" id="l${i}"><span class="no">${i+1}</span><span class="tx">${l.g}</span><span class="mk"></span></div>`).join("");
+  fitText();
 }
 
+/* 8줄이 한 줄씩, 틀 안에 꼭 맞도록 가장 큰 글자 크기를 찾음 */
+function fitText(){
+  const box=$("text");
+  const fits=()=>{
+    if(box.scrollHeight>box.clientHeight+1) return false;
+    for(const t of box.querySelectorAll(".tx")) if(t.scrollWidth>t.clientWidth+1) return false;
+    return true;
+  };
+  let lo=12,hi=72;
+  while(hi-lo>1){
+    const mid=(lo+hi)>>1;
+    box.style.fontSize=mid+"px";
+    if(fits()) lo=mid; else hi=mid;
+  }
+  box.style.fontSize=lo+"px";
+}
+let rz; addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(fitText,120)});
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitText);
 
 /* 음성 인식 */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR){$("noSupport").classList.remove("hidden");$("startBtn").disabled=true}
 
 let rec=null,listening=false,dropNext=false;
-let committed="",sessionText="",consumed=0;
-let idx=0,t0=0,raf=0,timing=false,skips=0;
+let committed="",sessionText="";
+let idx=0,t0=0,raf=0,timing=false,skips=0,skipAt=[];
 
 function startRec(){
   rec=new SR();
@@ -223,10 +242,10 @@ function startRec(){
     }
   };
   rec.onend=()=>{
-    // 말이 잠깐 끊기면 브라우저가 인식을 멈춤 → 들은 걸 보관하고 다시 켬
+    // 브라우저가 인식을 끊으면 들은 걸 보관하고 곧바로 다시 켬
     if(dropNext) dropNext=false; else committed+=sessionText;
     sessionText="";
-    if(listening) setTimeout(()=>{if(listening) try{startRec()}catch(e){}},100);
+    if(listening) try{startRec()}catch(e){setTimeout(()=>{if(listening) try{startRec()}catch(e){}},50)}
   };
   try{rec.start();$("mic").classList.add("on")}catch(e){}
 }
@@ -235,20 +254,25 @@ function stopRec(){
   if(rec){rec.onend=null;try{rec.abort()}catch(e){}}
 }
 
+/* 들은 말 전체를 처음부터 다시 맞춰 봄.
+   인식기는 말하는 도중에 앞부분 글자를 계속 고쳐 쓰기 때문에,
+   매번 처음부터 줄 순서대로 짚어 가야 빠르게 읽어도 위치가 어긋나지 않음 */
 function check(){
   if(!timing) return;
   const all=committed+sessionText;
   const tail=all.trim().slice(-40);
   if(tail) $("heard").innerHTML=`<bdi>${esc(tail)}</bdi>`;
   const J=jamo(all);
-  if(consumed>J.length) consumed=J.length;
+  let pos=0;
+  for(let i=0;i<idx;i++){
+    if(skipAt[i]!=null){pos=Math.max(pos,Math.min(skipAt[i],J.length));continue}
+    pos+=lineMatch(i,J.slice(pos)).end;
+  }
   while(idx<LINES.length){
-    const rest=J.slice(consumed);
-    let best={score:0,end:0};
-    for(const p of TARGETS[idx]){const m=bestMatch(p,rest); if(m.score>best.score) best=m}
+    const best=lineMatch(idx,J.slice(pos));
     setMeter(best.score);
     if(best.score<level) break;
-    consumed+=best.end;
+    pos+=best.end;
     pass(false);
   }
 }
@@ -257,8 +281,7 @@ function setMeter(s){$("meterFill").style.width=Math.max(0,Math.min(1,s))*100+"%
 function pass(skipped){
   const ln=$("l"+idx);
   ln.classList.remove("now"); ln.classList.add(skipped?"skip":"done");
-  const st=document.createElement("span"); st.className="stamp"; st.textContent=skipped?"넘김":"통과";
-  ln.appendChild(st);
+  ln.querySelector(".mk").innerHTML=`<span class="stamp">${skipped?"넘김":"통과"}</span>`;
   idx++; setMeter(0);
   if(idx>=LINES.length){finish();return}
   $("l"+idx).classList.add("now");
@@ -269,24 +292,25 @@ function tick(){
   raf=requestAnimationFrame(tick);
 }
 
+let countIv;
 function begin(){
-  drawText(); idx=0; skips=0; consumed=0; committed=""; sessionText=""; timing=false;
+  drawText(); idx=0; skips=0; skipAt=[]; committed=""; sessionText=""; timing=false;
   $("meterLine").style.left=level*100+"%"; setMeter(0);
   $("timer").innerHTML="0.0<small>초</small>";
   $("heard").innerHTML="<bdi>첫 줄부터 소리 내어 읽어요</bdi>";
   $("ready").classList.add("hidden"); $("playing").classList.remove("hidden");
+  fitText();
   listening=true; startRec();               // 버튼 누르는 순간 켜야 마이크 허용 창이 뜸
   let n=3; $("countNum").textContent=n; $("countOv").classList.remove("hidden");
-  const iv=setInterval(()=>{
+  countIv=setInterval(()=>{
     n--;
     if(n>0){$("countNum").textContent=n;return}
-    clearInterval(iv); $("countOv").classList.add("hidden");
-    committed=""; sessionText=""; consumed=0; // 카운트다운 동안 들린 소리는 버림
+    clearInterval(countIv); $("countOv").classList.add("hidden");
+    committed=""; sessionText="";             // 카운트다운 동안 들린 소리는 버림
     dropNext=true; try{rec&&rec.abort()}catch(e){}
     $("l0").classList.add("now");
     t0=performance.now(); timing=true; tick();
   },900);
-  begin.iv=iv;
 }
 function finish(){
   timing=false; cancelAnimationFrame(raf); stopRec();
@@ -297,7 +321,7 @@ function finish(){
   $("endOv").classList.remove("hidden");
 }
 function reset(){
-  clearInterval(begin.iv); timing=false; cancelAnimationFrame(raf); stopRec();
+  clearInterval(countIv); timing=false; cancelAnimationFrame(raf); stopRec();
   $("countOv").classList.add("hidden"); $("endOv").classList.add("hidden");
   $("playing").classList.add("hidden"); $("ready").classList.remove("hidden");
   $("timer").innerHTML="0.0<small>초</small>";
@@ -309,7 +333,7 @@ $("nextBtn").onclick=reset;
 $("resetBtn").onclick=reset;
 $("skipBtn").onclick=()=>{
   if(!timing||idx>=LINES.length) return;
-  skips++; consumed=jamo(committed+sessionText).length; pass(true);
+  skips++; skipAt[idx]=jamo(committed+sessionText).length; pass(true);
 };
 
 drawText();
