@@ -99,12 +99,6 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 
   <!-- 시작 전 -->
   <footer class="bottom" id="ready">
-    <div class="level" id="level">
-      <span>발음 기준</span>
-      <button data-v="0.55">너그럽게</button>
-      <button data-v="0.68">보통</button>
-      <button data-v="0.8">엄격하게</button>
-    </div>
     <div class="spacer"></div>
     <div class="warn hidden" id="noSupport">음성 인식이 안 되는 브라우저예요. 안드로이드는 크롬, 아이패드는 사파리로 열어 주세요.</div>
     <button class="go" id="startBtn">시작</button>
@@ -145,16 +139,18 @@ const LINES = [
   {g:"내 이랄 위하야 어엿비 너겨",
    v:["내 이를 위하여 어여삐 여겨","내 이랄 위하여 어엿비 너겨","내 이를 위하야 어엿비 너겨"]},
   {g:"새로 스믈여듧 자랄 맹가노니",
-   v:["새로 스물여덟 자를 만드노니","새로 스물여덟 자랄 맹가노니","새로 스물여듧 자를 맹가노니"]},
+   v:["새로 스물여덟 자를 만드노니","새로 스물여덟 자랄 맹가노니","새로 스물여듧 자를 맹가노니",
+      "새로 스물여덟 자를 맹가노니","새로 스물여덟 자라 맹가 노니","새로 스물여덟 잘 할 맹가노니",
+      "새로 스물여덟 자를 망가노니","새로 스물여덟 자랑 맹가 놓니","새로 스물여덟 자를 만들었으니",
+      "새로 스물여덟 자를 만드니","새로 스물여덟 자 맹가노니","새로 스물여덟 차를 맹가노니"]},
   {g:"사람마다 해여 수비 니겨",
    v:["사람마다 하여 쉬이 익혀","사람마다 해여 쉽게 익혀","사람마다 해여 수비 이겨"]},
   {g:"날로 쑤메 뼌한킈 하고져 할 따라미니라",
    v:["날로 씀에 편안케 하고자 할 따름이니라","날로 쓰메 편한키 하고져 할 따라미니라","날로 쑤메 편한 키 하고져 할 따름이니라"]}
 ];
 
-/* 기준값 저장 */
-let level=0.68;
-try{const s=localStorage.getItem("hunmin-level");if(s)level=parseFloat(s)}catch(e){}
+/* 발음 기준: 너그럽게(55%) 고정 */
+const level=0.55;
 
 /* 한글 → 자모 (비교용) */
 const CHO="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
@@ -162,6 +158,7 @@ const JUNG="ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
 const JONG=["","ㄱ","ㄲ","ㄱㅅ","ㄴ","ㄴㅈ","ㄴㅎ","ㄷ","ㄹ","ㄹㄱ","ㄹㅁ","ㄹㅂ","ㄹㅅ","ㄹㅌ","ㄹㅍ","ㄹㅎ","ㅁ","ㅂ","ㅂㅅ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
 const SAME={"ㅔ":"ㅐ","ㅖ":"ㅒ","ㅙ":"ㅚ","ㅞ":"ㅚ"};
 function jamo(s){
+  s=s.replace(/28/g,"스물여덟").replace(/이십팔/g,"스물여덟");
   let out="";
   for(const ch of s){
     const c=ch.charCodeAt(0);
@@ -200,17 +197,10 @@ function drawText(){
     `<div class="ln" id="l${i}"><span class="no">${i+1}</span><span class="tx">${l.g}</span></div>`).join("");
 }
 
-/* 기준 버튼 */
-function paintLevel(){$("level").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(parseFloat(b.dataset.v)===level)))}
-$("level").addEventListener("click",e=>{
-  const b=e.target.closest("button[data-v]"); if(!b) return;
-  level=parseFloat(b.dataset.v); try{localStorage.setItem("hunmin-level",level)}catch(e){}
-  paintLevel();
-});
 
 /* 음성 인식 */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR){$("noSupport").classList.remove("hidden");$("startBtn").disabled=true;$("level").classList.add("hidden")}
+if(!SR){$("noSupport").classList.remove("hidden");$("startBtn").disabled=true}
 
 let rec=null,listening=false,dropNext=false;
 let committed="",sessionText="",consumed=0;
@@ -322,7 +312,7 @@ $("skipBtn").onclick=()=>{
   skips++; consumed=jamo(committed+sessionText).length; pass(true);
 };
 
-drawText(); paintLevel();
+drawText();
 </script>
 </body>
 </html>
