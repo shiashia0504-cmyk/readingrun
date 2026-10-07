@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>훈민정음 언해본 빨리 읽기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ECE6D6; --paper-2:#E2DAC6; --ink:#24211C; --ink-soft:#7A7263;
+  --seal:#B3322B; --indigo:#2D3E66; --line:#3A352C;
+  --serif:"Noto Serif KR","Noto Serif CJK KR","Apple SD Gothic Neo","Malgun Gothic",serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#1E1C19; --paper-2:#29261F; --ink:#EAE3D1; --ink-soft:#A39B88;
+    --seal:#D9544B; --indigo:#8FA6D9; --line:#CFC6B0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#1E1C19; --paper-2:#29261F; --ink:#EAE3D1; --ink-soft:#A39B88;
+  --seal:#D9544B; --indigo:#8FA6D9; --line:#CFC6B0;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--paper);color:var(--ink);font-family:var(--serif);-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font-family:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--seal);outline-offset:3px}
+.hidden{display:none!important}
+
+.app{height:100%;display:flex;flex-direction:column;max-width:1100px;margin:0 auto;padding:0 clamp(14px,3vw,36px)}
+
+/* 위: 시간 */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:clamp(10px,2vh,20px) 0;border-bottom:3px double var(--line)}
+.top h1{margin:0;font-size:clamp(18px,2.6vh,24px);font-weight:600;letter-spacing:.06em}
+.timer{font-size:clamp(48px,9vh,88px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:.01em}
+.timer small{font-size:.38em;font-weight:600;margin-left:6px}
+
+/* 가운데: 본문 8줄 */
+.text{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(4px,1vh,10px);padding:clamp(10px,2vh,20px) 0}
+.ln{position:relative;display:flex;align-items:center;gap:clamp(10px,2vw,20px);font-size:clamp(22px,min(5.4vh,4.2vw),46px);font-weight:600;line-height:1.35;padding:.12em .4em;border-radius:3px;color:var(--ink-soft);transition:color .25s, background-color .25s}
+.ln .no{flex:none;width:1.4em;font-size:.55em;font-weight:400;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.ln .tx{flex:1;min-width:0;word-break:keep-all}
+.ln.now{color:var(--ink);background:color-mix(in srgb,var(--seal) 10%,transparent);box-shadow:inset 5px 0 0 var(--seal)}
+.ln.done{color:var(--indigo)}
+.ln.skip{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:2px}
+.stamp{flex:none;width:2.1em;height:2.1em;border:3px solid var(--seal);border-radius:50%;color:var(--seal);font-size:.42em;font-weight:900;display:grid;place-items:center;transform:rotate(-10deg);animation:stamp .32s cubic-bezier(.2,1.6,.4,1) both}
+.ln.skip .stamp{border-style:dashed;color:var(--ink-soft);border-color:var(--ink-soft)}
+@keyframes stamp{from{transform:scale(2.4) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(-10deg);opacity:1}}
+@media (prefers-reduced-motion: reduce){.stamp{animation:none}}
+
+/* 아래: 상태와 버튼 */
+.bottom{display:flex;align-items:center;gap:14px;padding:clamp(10px,2vh,18px) 0;border-top:3px double var(--line)}
+.mic{width:18px;height:18px;border-radius:50%;background:var(--ink-soft);flex:none}
+.mic.on{background:var(--seal);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.3}}
+@media (prefers-reduced-motion: reduce){.mic.on{animation:none}}
+.heard{flex:1;min-width:0;font-size:17px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:rtl;text-align:left}
+.heard bdi{direction:ltr}
+.meter{width:120px;height:10px;border:2px solid var(--line);flex:none;position:relative}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--indigo);width:0;transition:width .15s}
+.meter b{position:absolute;top:-5px;bottom:-5px;width:3px;background:var(--seal)}
+.btn{font-size:17px;padding:10px 16px;border:2px solid var(--line);background:var(--paper-2);border-radius:4px;flex:none}
+.go{font-size:clamp(24px,4vh,32px);font-weight:900;padding:14px 40px;border:none;background:var(--seal);color:#FFF8EE;border-radius:4px;letter-spacing:.12em}
+.go:disabled{opacity:.4;cursor:not-allowed}
+.level{display:flex;align-items:center;gap:6px;font-size:16px;color:var(--ink-soft);flex:none}
+.level button{font-size:16px;padding:8px 12px;border:2px solid var(--line);background:var(--paper-2);border-radius:4px}
+.level button[aria-pressed=true]{background:var(--ink);color:var(--paper)}
+.warn{flex:1;font-size:16px;line-height:1.5;color:var(--seal)}
+.spacer{flex:1}
+
+/* 카운트다운 / 끝 */
+.overlay{position:fixed;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--paper) 90%,transparent);z-index:5;padding:20px}
+.count{font-size:min(42vh,260px);font-weight:900;color:var(--seal);line-height:1}
+.end{text-align:center;display:flex;flex-direction:column;align-items:center;gap:18px}
+.end .t{font-size:clamp(80px,20vh,180px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.end .t small{font-size:.32em;margin-left:8px}
+.end p{margin:0;font-size:20px;color:var(--ink-soft)}
+
+@media (max-width:640px){
+  .meter{width:70px}
+  .level span{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>훈민정음 언해본<br>빨리 읽기</h1>
+    <div class="timer" id="timer">0.0<small>초</small></div>
+  </header>
+
+  <main class="text" id="text"></main>
+
+  <!-- 시작 전 -->
+  <footer class="bottom" id="ready">
+    <div class="level" id="level">
+      <span>발음 기준</span>
+      <button data-v="0.55">너그럽게</button>
+      <button data-v="0.68">보통</button>
+      <button data-v="0.8">엄격하게</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="warn hidden" id="noSupport">음성 인식이 안 되는 브라우저예요. 안드로이드는 크롬, 아이패드는 사파리로 열어 주세요.</div>
+    <button class="go" id="startBtn">시작</button>
+  </footer>
+
+  <!-- 읽는 중 -->
+  <footer class="bottom hidden" id="playing">
+    <span class="mic" id="mic" aria-hidden="true"></span>
+    <div class="heard" id="heard"><bdi>첫 줄부터 소리 내어 읽어요</bdi></div>
+    <div class="meter" title="지금 줄과 얼마나 비슷하게 들렸는지"><i id="meterFill"></i><b id="meterLine"></b></div>
+    <button class="btn" id="skipBtn">이 줄 넘기기</button>
+    <button class="btn" id="resetBtn">처음으로</button>
+  </footer>
+</div>
+
+<div class="overlay hidden" id="countOv"><div class="count" id="countNum">3</div></div>
+
+<div class="overlay hidden" id="endOv">
+  <div class="end">
+    <p>다 읽었어요!</p>
+    <div class="t" id="endTime">0.0<small>초</small></div>
+    <p id="endNote"></p>
+    <button class="go" id="nextBtn">다음 사람</button>
+  </div>
+</div>
+
+<script>
+/* 본문: 아이들이 보는 줄(g) + 음성인식이 현대어로 바꿔 적을 때 허용할 표기(v) */
+const LINES = [
+  {g:"나랏말싸미 듕귁에 달아",
+   v:["나랏말싸미 중국에 달아","나라말싸미 중국에 달아","나랏말쌈이 중국에 달아"]},
+  {g:"문자와로 서르 사맛디 아니할쎄",
+   v:["문자와로 서로 사맛디 아니할세","문자와로 서르 사맛디 아니할새","문자와로 서로 사마디 아니할세"]},
+  {g:"이런 젼차로 어린 백셩이 니르고져 홀 배 이셔도",
+   v:["이런 전차로 어린 백성이 니르고져 홀 배 이셔도","이런 전차로 어린 백성이 이르고저 할 바 있어도","이런 전차로 어린 백성이 니르고저 홀배 있어도"]},
+  {g:"마참내 제 뜨들 시러 펴디 몯할 노미 하니라",
+   v:["마참내 제 뜻을 실어 펴디 못할 노미 하니라","마침내 제 뜻을 실어 펴지 못할 놈이 하니라","마참내 제 뜨들 실어 펴디 못할 놈이 하니라"]},
+  {g:"내 이랄 위하야 어엿비 너겨",
+   v:["내 이를 위하여 어여삐 여겨","내 이랄 위하여 어엿비 너겨","내 이를 위하야 어엿비 너겨"]},
+  {g:"새로 스믈여듧 자랄 맹가노니",
+   v:["새로 스물여덟 자를 만드노니","새로 스물여덟 자랄 맹가노니","새로 스물여듧 자를 맹가노니"]},
+  {g:"사람마다 해여 수비 니겨",
+   v:["사람마다 하여 쉬이 익혀","사람마다 해여 쉽게 익혀","사람마다 해여 수비 이겨"]},
+  {g:"날로 쑤메 뼌한킈 하고져 할 따라미니라",
+   v:["날로 씀에 편안케 하고자 할 따름이니라","날로 쓰메 편한키 하고져 할 따라미니라","날로 쑤메 편한 키 하고져 할 따름이니라"]}
+];
+
+/* 기준값 저장 */
+let level=0.68;
+try{const s=localStorage.getItem("hunmin-level");if(s)level=parseFloat(s)}catch(e){}
+
+/* 한글 → 자모 (비교용) */
+const CHO="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+const JUNG="ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
+const JONG=["","ㄱ","ㄲ","ㄱㅅ","ㄴ","ㄴㅈ","ㄴㅎ","ㄷ","ㄹ","ㄹㄱ","ㄹㅁ","ㄹㅂ","ㄹㅅ","ㄹㅌ","ㄹㅍ","ㄹㅎ","ㅁ","ㅂ","ㅂㅅ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+const SAME={"ㅔ":"ㅐ","ㅖ":"ㅒ","ㅙ":"ㅚ","ㅞ":"ㅚ"};
+function jamo(s){
+  let out="";
+  for(const ch of s){
+    const c=ch.charCodeAt(0);
+    if(c>=0xAC00&&c<=0xD7A3){
+      const i=c-0xAC00, cho=CHO[Math.floor(i/588)], jung=JUNG[Math.floor((i%588)/28)];
+      if(cho!=="ㅇ") out+=cho;           // 소리 없는 ㅇ은 빼서 '뜻을/뜨들' 같은 차이를 줄임
+      out+=(SAME[jung]||jung)+JONG[i%28];
+    }
+  }
+  return out;
+}
+/* 들린 말 안에 목표 줄이 얼마나 비슷하게 들어 있는지 (0~1) */
+function bestMatch(p,t){
+  const m=p.length,n=t.length;
+  if(!m||!n) return {score:0,end:0};
+  let prev=new Array(n+1).fill(0);
+  for(let i=1;i<=m;i++){
+    const cur=new Array(n+1); cur[0]=i; const pc=p[i-1];
+    for(let j=1;j<=n;j++){
+      const a=prev[j]+1,b=cur[j-1]+1,c=prev[j-1]+(pc===t[j-1]?0:1);
+      cur[j]=a<b?(a<c?a:c):(b<c?b:c);
+    }
+    prev=cur;
+  }
+  let best=Infinity,end=0;
+  for(let j=0;j<=n;j++) if(prev[j]<best){best=prev[j];end=j}
+  return {score:1-best/m,end};
+}
+const TARGETS=LINES.map(l=>[l.g,...l.v].map(jamo));
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function drawText(){
+  $("text").innerHTML=LINES.map((l,i)=>
+    `<div class="ln" id="l${i}"><span class="no">${i+1}</span><span class="tx">${l.g}</span></div>`).join("");
+}
+
+/* 기준 버튼 */
+function paintLevel(){$("level").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(parseFloat(b.dataset.v)===level)))}
+$("level").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-v]"); if(!b) return;
+  level=parseFloat(b.dataset.v); try{localStorage.setItem("hunmin-level",level)}catch(e){}
+  paintLevel();
+});
+
+/* 음성 인식 */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){$("noSupport").classList.remove("hidden");$("startBtn").disabled=true;$("level").classList.add("hidden")}
+
+let rec=null,listening=false,dropNext=false;
+let committed="",sessionText="",consumed=0;
+let idx=0,t0=0,raf=0,timing=false,skips=0;
+
+function startRec(){
+  rec=new SR();
+  rec.lang="ko-KR"; rec.continuous=true; rec.interimResults=true;
+  sessionText="";
+  rec.onresult=e=>{
+    let s="";
+    for(let i=0;i<e.results.length;i++) s+=e.results[i][0].transcript+" ";
+    sessionText=s;
+    check();
+  };
+  rec.onerror=e=>{
+    if(e.error==="not-allowed"||e.error==="service-not-allowed"){
+      listening=false; $("mic").classList.remove("on");
+      $("heard").innerHTML="<bdi>마이크가 막혀 있어요. 주소창 옆 자물쇠에서 마이크를 허용해 주세요.</bdi>";
+    }
+  };
+  rec.onend=()=>{
+    // 말이 잠깐 끊기면 브라우저가 인식을 멈춤 → 들은 걸 보관하고 다시 켬
+    if(dropNext) dropNext=false; else committed+=sessionText;
+    sessionText="";
+    if(listening) setTimeout(()=>{if(listening) try{startRec()}catch(e){}},100);
+  };
+  try{rec.start();$("mic").classList.add("on")}catch(e){}
+}
+function stopRec(){
+  listening=false; $("mic").classList.remove("on");
+  if(rec){rec.onend=null;try{rec.abort()}catch(e){}}
+}
+
+function check(){
+  if(!timing) return;
+  const all=committed+sessionText;
+  const tail=all.trim().slice(-40);
+  if(tail) $("heard").innerHTML=`<bdi>${esc(tail)}</bdi>`;
+  const J=jamo(all);
+  if(consumed>J.length) consumed=J.length;
+  while(idx<LINES.length){
+    const rest=J.slice(consumed);
+    let best={score:0,end:0};
+    for(const p of TARGETS[idx]){const m=bestMatch(p,rest); if(m.score>best.score) best=m}
+    setMeter(best.score);
+    if(best.score<level) break;
+    consumed+=best.end;
+    pass(false);
+  }
+}
+function setMeter(s){$("meterFill").style.width=Math.max(0,Math.min(1,s))*100+"%"}
+
+function pass(skipped){
+  const ln=$("l"+idx);
+  ln.classList.remove("now"); ln.classList.add(skipped?"skip":"done");
+  const st=document.createElement("span"); st.className="stamp"; st.textContent=skipped?"넘김":"통과";
+  ln.appendChild(st);
+  idx++; setMeter(0);
+  if(idx>=LINES.length){finish();return}
+  $("l"+idx).classList.add("now");
+}
+
+function tick(){
+  $("timer").innerHTML=`${((performance.now()-t0)/1000).toFixed(1)}<small>초</small>`;
+  raf=requestAnimationFrame(tick);
+}
+
+function begin(){
+  drawText(); idx=0; skips=0; consumed=0; committed=""; sessionText=""; timing=false;
+  $("meterLine").style.left=level*100+"%"; setMeter(0);
+  $("timer").innerHTML="0.0<small>초</small>";
+  $("heard").innerHTML="<bdi>첫 줄부터 소리 내어 읽어요</bdi>";
+  $("ready").classList.add("hidden"); $("playing").classList.remove("hidden");
+  listening=true; startRec();               // 버튼 누르는 순간 켜야 마이크 허용 창이 뜸
+  let n=3; $("countNum").textContent=n; $("countOv").classList.remove("hidden");
+  const iv=setInterval(()=>{
+    n--;
+    if(n>0){$("countNum").textContent=n;return}
+    clearInterval(iv); $("countOv").classList.add("hidden");
+    committed=""; sessionText=""; consumed=0; // 카운트다운 동안 들린 소리는 버림
+    dropNext=true; try{rec&&rec.abort()}catch(e){}
+    $("l0").classList.add("now");
+    t0=performance.now(); timing=true; tick();
+  },900);
+  begin.iv=iv;
+}
+function finish(){
+  timing=false; cancelAnimationFrame(raf); stopRec();
+  const t=((performance.now()-t0)/1000).toFixed(1);
+  $("timer").innerHTML=`${t}<small>초</small>`;
+  $("endTime").innerHTML=`${t}<small>초</small>`;
+  $("endNote").textContent=skips?`넘긴 줄 ${skips}개`:"";
+  $("endOv").classList.remove("hidden");
+}
+function reset(){
+  clearInterval(begin.iv); timing=false; cancelAnimationFrame(raf); stopRec();
+  $("countOv").classList.add("hidden"); $("endOv").classList.add("hidden");
+  $("playing").classList.add("hidden"); $("ready").classList.remove("hidden");
+  $("timer").innerHTML="0.0<small>초</small>";
+  drawText(); $("startBtn").focus();
+}
+
+$("startBtn").onclick=begin;
+$("nextBtn").onclick=reset;
+$("resetBtn").onclick=reset;
+$("skipBtn").onclick=()=>{
+  if(!timing||idx>=LINES.length) return;
+  skips++; consumed=jamo(committed+sessionText).length; pass(true);
+};
+
+drawText(); paintLevel();
+</script>
+</body>
+</html>
