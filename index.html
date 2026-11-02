@@ -8,24 +8,44 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script>
+window.__errs=[];
+window.addEventListener("error",e=>{window.__errs.push(e.message||String(e));if(window.__showFatal)window.__showFatal();});
+document.addEventListener("DOMContentLoaded",()=>{
+  window.__showFatal=()=>{
+    if(!window.__errs.length)return;
+    const el=document.getElementById("errBanner");if(!el)return;
+    const m=window.__errs[0];
+    let hint="";
+    if(/import statement|Unexpected token 'export'|Cannot use import/i.test(m)) hint="설정 칸에 import 줄이 들어갔어요. { } 안의 값만 남기고 import·initializeApp 줄은 지워 주세요.";
+    else if(/FIREBASE_CONFIG|firebaseConfig/.test(m)) hint="Firebase 설정 블록을 찾지 못했어요. const FIREBASE_CONFIG = { … }; 모양인지 확인해 주세요.";
+    else if(/Unexpected|Invalid or unexpected|missing/i.test(m)) hint="Firebase 설정을 붙여넣은 부분에 따옴표·쉼표·괄호가 빠졌거나 남은 것 같아요.";
+    else if(/firebase is not defined/i.test(m)) hint="Firebase 프로그램을 불러오지 못했어요. 인터넷 연결이나 학교 방화벽을 확인해 주세요.";
+    el.textContent="사이트를 시작하지 못했어요. "+(hint||"")+" (오류: "+m+")";el.hidden=false;
+  };
+  window.__showFatal();
+});
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 /* ============================================================
    설정: 기존 Firebase 프로젝트의 웹 앱 설정값을 붙여넣으세요.
    apiKey가 비어 있으면 "체험 모드"로 동작해요(이 브라우저에만 저장).
+   Firebase 콘솔의 const firebaseConfig = { … }; 블록을 통째로 붙여넣어도 돼요.
+   단, import 줄과 initializeApp 줄은 넣지 마세요.
    ============================================================ */
-const firebaseConfig = {
-  apiKey: "AIzaSyAGXTluH70xjqOt5SL_vPRD_0-Sno0Ombo",
-  authDomain: "reportergame34.firebaseapp.com",
-  projectId: "reportergame34",
-  storageBucket: "reportergame34.firebasestorage.app",
-  messagingSenderId: "994035949261",
-  appId: "1:994035949261:web:c5099f09e46348eef69384",
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 /* 다른 앱 데이터와 섞이지 않도록 이 사이트만 쓰는 컬렉션 이름 */
-const COLL_CONFIG  = "marathon_config";
-const COLL_RECORDS = "marathon_records";
+var COLL_CONFIG  = "marathon_config";
+var COLL_RECORDS = "marathon_records";
 </script>
 <style>
 :root{
@@ -307,11 +327,12 @@ const DEFAULT_CONFIG = {
 /* ============================================================
    저장소: Firebase 또는 체험 모드(localStorage)
    ============================================================ */
-const DEMO = !FIREBASE_CONFIG.apiKey;
+const CFG = (typeof FIREBASE_CONFIG!=="undefined"&&FIREBASE_CONFIG)||(typeof firebaseConfig!=="undefined"&&firebaseConfig)||{};
+const DEMO = !CFG.apiKey;
 const Store = (()=>{
   let onCfg=()=>{}, onRec=()=>{};
   if(!DEMO){
-    try{ if(typeof firebase==="undefined") throw {code:"sdk-load-failed"}; firebase.initializeApp(FIREBASE_CONFIG); }
+    try{ if(typeof firebase==="undefined") throw {code:"sdk-load-failed"}; firebase.initializeApp(CFG); }
     catch(e){ setTimeout(()=>showErr(e),0); return {init(){},saveConfig:async()=>{},add:async()=>{},update:async()=>{},remove:async()=>{}}; }
     const db = firebase.firestore();
     const cfgRef = db.collection(COLL_CONFIG).doc("main");
@@ -348,6 +369,7 @@ function showErr(e){
   let m="Firebase에 연결하지 못했어요. 설정값과 보안 규칙을 확인해 주세요.";
   if(code==="permission-denied") m="Firebase 보안 규칙이 막고 있어요. Firestore 규칙에 marathon_config, marathon_records 읽기·쓰기 허용을 추가해 주세요.";
   else if(code==="not-found"||code==="failed-precondition") m="Firestore 데이터베이스가 아직 없어요. Firebase 콘솔에서 Firestore Database를 만들어 주세요.";
+  else if(code==="sdk-load-failed") m="Firebase 프로그램을 불러오지 못했어요. 인터넷 연결이나 학교 방화벽을 확인해 주세요.";
   else if(code==="unavailable") m="인터넷 연결이 불안정해요. 잠시 후 다시 시도해 주세요.";
   const el=document.getElementById("errBanner");if(el){el.textContent=m+(code?` (${code})`:"");el.hidden=false;}
   toast(m);
